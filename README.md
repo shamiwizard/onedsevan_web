@@ -1,24 +1,5 @@
-# README
+# Onedseven web site
+It is simple website for our team **onedseven**. Which telling what we do)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Only this dependency for now(this list will be updated)::
+- ruby 2.7.2
