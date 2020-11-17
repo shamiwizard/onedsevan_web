@@ -26,5 +26,15 @@ FactoryBot.define do
     trait :role_superadmin do
       role { :SUPERADMIN }
     end
+
+    trait :with_games do
+      transient do
+        game_count { 1 }
+      end
+
+      games do
+        Array.new(game_count) { association(:game) }
+      end
+    end
   end
 end
