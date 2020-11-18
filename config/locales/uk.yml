@@ -1,1 +1,25 @@
 uk:
+  sign_up:
+    minimum_password_length: (мінімальна кількість символів %{number})
+  helpers:
+    label:
+      user:
+        email: Електрона пошта
+        username: Імя користувача
+        password: Пароль
+        remember_me: Запамятати мене
+        date_of_birth: Дата народження
+        first_name: Ім'я
+        last_name: Прізвище
+        password_confirmation: Пароль ще раз
+  activerecord:
+    errors:
+      models:
+        user:
+          attributes:
+            password:
+              blank: Пароль не може бути пустим
+              too_short: Пароль занадто короткий
+            email:
+              blank: Пошта повина бути заповнена
+
