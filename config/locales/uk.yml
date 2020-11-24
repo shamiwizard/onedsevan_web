@@ -1,4 +1,9 @@
 uk:
+  date:
+    order:
+      - :day
+      - :month
+      - :year
   sign_up:
     minimum_password_length: (мінімальна кількість символів %{number})
   helpers:
@@ -12,6 +17,7 @@ uk:
         first_name: Ім'я
         last_name: Прізвище
         password_confirmation: Пароль ще раз
+        start_date: 'Дата початку'
   activerecord:
     errors:
       models:

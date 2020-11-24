@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   namespace :panel do
+    get '/', to: 'menu#index'
     resources :games
   end
 
