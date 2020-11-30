@@ -13,7 +13,7 @@
     .form-input
       = f.input :max_players
     .form-input
-      = f.input :start_date, as: :datetime
+      = f.input :start_date, as: :datetime, start_year: Date.current.year
 
 
   .form-actions

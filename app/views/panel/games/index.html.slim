@@ -1,2 +1,8 @@
 - @games.each do |g|
-  div = g
+  div= g[:title]
+  div= "#{g[:min_level]}-#{g[:max_level]}"
+  div= g[:start_date]
+  div
+    => link_to 'Show', panel_game_path(g)
+    => link_to 'Edit', edit_panel_game_path(g)
+    = link_to 'Destroy', panel_game_path(g), method: :delete

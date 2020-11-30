@@ -1,2 +1,4 @@
 h1 Panel::Games#edit
 p Find me in app/views/panel/games/edit.html.slim
+
+= render './shared/form_game', game: @game, path: panel_game_path(@game)
