@@ -35,7 +35,7 @@ class Game < ApplicationRecord
   end
 
   def level_is_in_valid_range
-    return if min_level.to_s.to_i == min_level || max_level.to_s.to_i == max_level
+    return unless min_level.to_s.to_i == min_level || max_level.to_s.to_i == max_level
 
     errors.add(:min_level, :more_than_max_level) unless min_level < max_level
   end

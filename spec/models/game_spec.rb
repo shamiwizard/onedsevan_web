@@ -19,7 +19,7 @@ RSpec.describe Game, type: :model do
 
     context 'when start_date is present' do
       context 'when start_date is wrong format' do
-        before { build_game.start_date = 'asdasdas' }
+        before { build_game.start_date = 'foo' }
 
         it 'is not valid' do
           expect(build_game).to_not be_valid
@@ -89,10 +89,25 @@ RSpec.describe Game, type: :model do
         end
 
         context 'when max_level is integer' do
-          it 'is not valid' do
-            expect(build_game).to be_valid
-            expect(build_game.errors[:max_level]).to be_empty
-            expect { build_game.save }.to change(Game, :count).by 1
+          context 'when max_level is bigger than min_level' do
+            it 'is valid' do
+              expect(build_game).to be_valid
+              expect(build_game.errors[:max_level]).to be_empty
+              expect { build_game.save }.to change(Game, :count).by 1
+            end
+          end
+
+          context 'when max_level is smaller than min_level' do
+            before do
+              build_game.min_level += 1
+              build_game.max_level = build_game.min_level - 1
+            end
+
+            it 'is not valid' do
+              expect(build_game).to_not be_valid
+              expect { build_game.save }.to change(Game, :count).by 0
+              expect(build_game.errors[:min_level]).to include I18n.t('activerecord.errors.models.game.attributes.min_level.more_than_max_level')
+            end
           end
         end
       end

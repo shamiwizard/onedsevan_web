@@ -19,7 +19,7 @@ class Panel::GamesController < Panel::MenuController
       @game.save
       redirect_to panel_game_path(@game)
     else
-      render :new
+      render :new and return
     end
   end
 
@@ -29,12 +29,14 @@ class Panel::GamesController < Panel::MenuController
     if @game.update game_params
       redirect_to panel_game_path(@game)
     else
-      render :edit
+      render :edit and return
     end
   end
 
   def destroy
-    redirect_to panel_games_path if @game.destroy
+    @game&.destroy
+
+    redirect_to panel_games_path
   end
 
   private
@@ -53,6 +55,6 @@ class Panel::GamesController < Panel::MenuController
   end
 
   def find_game
-    @game = Game.find(params[:id])
+    @game ||= Game.find_by(id: params[:id])
   end
 end

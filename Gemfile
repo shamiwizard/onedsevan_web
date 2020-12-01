@@ -27,6 +27,7 @@ gem 'simple_form'
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rspec-rails', '~> 4.0.1'
+  gem 'rails-controller-testing'
   gem "factory_bot_rails"
   gem 'faker', :git => 'https://github.com/faker-ruby/faker.git', :branch => 'master'
 end
