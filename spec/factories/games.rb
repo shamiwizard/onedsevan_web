@@ -8,7 +8,13 @@ FactoryBot.define do
     game_system { Faker::Games::DnD.klass }
     max_players { Faker::Number.within(range: 3..7) }
     player_count { Faker::Number.between(from: 0, to: max_players) }
-    start_date { Faker::Time.between_dates(from: DateTime.current + 1.day, to: DateTime.current + 20.years, format: '%d.%m.%Y %H:%M:%S') }
+    start_date do
+      Faker::Time.between_dates(
+        from: DateTime.current + 1.day,
+        to: DateTime.current + 20.years,
+        format: :datetime_without_timezone
+      )
+    end
     association :user
   end
 end
