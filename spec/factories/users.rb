@@ -8,23 +8,19 @@ FactoryBot.define do
     date_of_birth { Faker::Date.birthday(min_age: 18, max_age: 65) }
 
     trait :role_player do
-      role { :PLAYER }
+      role { 30 }
     end
 
     trait :role_dm do
-      role { :DM }
-    end
-
-    trait :role_dm do
-      role { :ADMIN }
+      role { 20 }
     end
 
     trait :role_admin do
-      role { :ADMIN }
+      role { 10 }
     end
 
     trait :role_superadmin do
-      role { :SUPERADMIN }
+      role { 0 }
     end
 
     trait :with_games do

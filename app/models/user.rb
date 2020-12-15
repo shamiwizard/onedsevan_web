@@ -7,7 +7,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, authentication_keys: [:username]
 
-  enum role: %i[PLAYER DM ADMIN SUPERADMIN]
+  enum role: { superadmin: 0, admin: 10, DM: 20, player: 30 }
 
   validates :first_name, length: { in: 2..50 }, presence: true
   validates :last_name, length: { in: 3..50 }, presence: true
