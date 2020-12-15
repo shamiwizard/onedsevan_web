@@ -11,7 +11,7 @@ FactoryBot.define do
       role { 30 }
     end
 
-    trait :role_dm do
+    trait :role_game_master do
       role { 20 }
     end
 
