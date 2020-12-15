@@ -1,0 +1,20 @@
+= simple_form_for game, url: path do |f|
+  .form-inputs
+    .form-input
+      = f.input :title
+    .form-input
+      = f.input :description
+    .form-input
+      = f.input :image, as: :file
+    .form-input
+      = f.input :min_level
+    .form-input
+      = f.input :max_level
+    .form-input
+      = f.input :max_players
+    .form-input
+      = f.input :start_date, as: :datetime, start_year: Date.current.year
+
+
+  .form-actions
+    = f.button :submit

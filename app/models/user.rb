@@ -9,7 +9,7 @@ class User < ApplicationRecord
 
   enum role: %i[PLAYER DM ADMIN SUPERADMIN]
 
-  validates :first_name, length: { in: 3..50 }, presence: true
+  validates :first_name, length: { in: 2..50 }, presence: true
   validates :last_name, length: { in: 3..50 }, presence: true
   validates :password, length: { in: 6..30 }, presence: true
   validates :username, length: { in: 3..30 }, presence: true
