@@ -1,13 +1,12 @@
 class User < ApplicationRecord
   has_many :games
+  has_many :user_roles, dependent: :destroy
 
   mount_uploader :avatar, AvatarUploader
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, authentication_keys: [:username]
-
-  enum role: { superadmin: 0, admin: 10, game_master: 20, player: 30 }
 
   validates :first_name, length: { in: 2..50 }, presence: true
   validates :last_name, length: { in: 3..50 }, presence: true
