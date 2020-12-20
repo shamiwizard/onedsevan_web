@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_17_213034) do
+ActiveRecord::Schema.define(version: 2020_12_15_214734) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,6 +31,14 @@ ActiveRecord::Schema.define(version: 2020_11_17_213034) do
     t.index ["user_id"], name: "index_games_on_user_id"
   end
 
+  create_table "user_roles", force: :cascade do |t|
+    t.integer "role", default: 30
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_user_roles_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -39,7 +47,6 @@ ActiveRecord::Schema.define(version: 2020_11_17_213034) do
     t.datetime "remember_created_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "role"
     t.string "avatar"
     t.string "username", limit: 30, null: false
     t.date "date_of_birth", null: false
@@ -50,4 +57,5 @@ ActiveRecord::Schema.define(version: 2020_11_17_213034) do
   end
 
   add_foreign_key "games", "users"
+  add_foreign_key "user_roles", "users"
 end

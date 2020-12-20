@@ -15,6 +15,7 @@ FactoryBot.define do
         format: :datetime_without_timezone
       )
     end
+
     association :user
   end
 end
