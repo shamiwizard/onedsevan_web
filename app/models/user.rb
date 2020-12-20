@@ -14,11 +14,19 @@ class User < ApplicationRecord
   validates :username, length: { in: 3..30 }, presence: true
   validates :date_of_birth, presence: true
 
+  after_save :create_default_role
+
   def age
     Date.current.year - self.date_of_birth.year
   end
 
   def full_name
     "#{self.first_name} #{self.last_name}"
+  end
+
+  private
+
+  def create_default_role
+    user_roles.new(role: 30).save
   end
 end
