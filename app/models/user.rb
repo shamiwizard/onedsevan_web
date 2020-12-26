@@ -8,6 +8,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, authentication_keys: [:username]
 
+  delegate :superadmin, :admin, :game_master, :player, to: :user_roles
+
   validates :first_name, length: { in: 2..50 }, presence: true
   validates :last_name, length: { in: 3..50 }, presence: true
   validates :password, length: { in: 6..30 }, presence: true

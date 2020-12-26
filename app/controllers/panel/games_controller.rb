@@ -1,6 +1,8 @@
 class Panel::GamesController < Panel::MenuController
   before_action :find_game, only: %i[show edit update destroy]
 
+  load_and_authorize_resource
+
   def index
     @games = Game.all
   end
