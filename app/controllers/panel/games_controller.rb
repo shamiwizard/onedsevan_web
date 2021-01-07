@@ -57,6 +57,8 @@ class Panel::GamesController < Panel::MenuController
   end
 
   def find_game
-    @game ||= Game.find_by(id: params[:id])
+    @game = Game.find_by_id!(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to panel_games_path
   end
 end
