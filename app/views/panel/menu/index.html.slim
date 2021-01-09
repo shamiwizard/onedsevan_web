@@ -1,6 +1,7 @@
 h1 Panel::Menu#index
 p Find me in app/views/panel/menu/index.html.slim
 
-= link_to 'Всі ігри', panel_games_path
-- if can? :create, @game
+- if can? :read, Game
+  = link_to 'Всі ігри', panel_games_path
+- if can? :create, Game
   = link_to 'Створити гру', new_panel_game_path
