@@ -23,6 +23,7 @@ gem 'devise'
 gem "slim-rails"
 gem 'carrierwave', '~> 2.0'
 gem 'simple_form'
+gem 'cancancan'
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
