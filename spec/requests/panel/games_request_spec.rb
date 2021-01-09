@@ -6,46 +6,30 @@ RSpec.describe 'Panel::Games', type: :request do
   let(:game_master) { create(:user, :role_game_master) }
   let(:admin) { create(:user, :role_admin) }
   let(:superadmin) { create(:user, :role_superadmin) }
-  let(:game) { create(:game, user: user) }
+  let(:game) { create(:game, user: user, max_level: 10) }
   let(:sign_in_method) { sign_in user }
   let(:game_attributes) { attributes_for(:game) }
   let(:params) { { game: game_attributes } }
 
   before { sign_in_method }
 
+  shared_context 'user with different role have access to page' do
+    %w[player game_master admin superadmin].each do |role|
+      context "when user is #{role}" do
+        let(:user) { send(role) }
+
+        it 'returns http success' do
+          expect(response).to have_http_status(:success)
+        end
+      end
+    end
+  end
+
   describe 'GET /index' do
     before { get '/panel/games' }
 
     context 'when user is sign in' do
-      context 'when user is player' do
-        it 'returns http success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
-
-      context 'when user is game_master' do
-        let(:user) { game_master }
-
-        it 'returns http success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
-
-      context 'when user is admin' do
-        let(:user) { admin }
-
-        it 'returns http success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
-
-      context 'when user is superadmin' do
-        let(:user) { superadmin }
-
-        it 'returns http success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
+      it_behaves_like 'user with different role have access to page'
     end
 
     context 'when user is not sign in' do
@@ -61,39 +45,7 @@ RSpec.describe 'Panel::Games', type: :request do
     before { get "/panel/games/#{game.id}" }
 
     context 'when user is sign in' do
-      it 'returns http success' do
-        expect(response).to have_http_status(:success)
-      end
-
-      context 'when user is player' do
-        it 'returns http success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
-
-      context 'when user is game_master' do
-        let(:user) { game_master }
-
-        it 'returns http success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
-
-      context 'when user is admin' do
-        let(:user) { admin }
-
-        it 'returns http success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
-
-      context 'when user is superadmin' do
-        let(:user) { superadmin }
-
-        it 'returns http success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
+      it_behaves_like 'user with different role have access to page'
     end
 
     context 'when user is not sign in' do
@@ -105,41 +57,34 @@ RSpec.describe 'Panel::Games', type: :request do
     end
   end
 
+  shared_context 'user roles have different access' do
+    %w[player game_master].each do |role|
+      context "when user is #{role}" do
+        let(:user) { send(role) }
+
+        it 'returns http status code 302' do
+          expect(response).to have_http_status(302)
+          expect(response).to redirect_to root_url
+        end
+      end
+    end
+
+    %w[admin superadmin].each do |role|
+      context "when user is #{role}" do
+        let(:user) { send(role) }
+
+        it 'returns http status success' do
+          expect(response).to have_http_status(:success)
+        end
+      end
+    end
+  end
+
   describe 'GET /new' do
     before { get '/panel/games/new' }
 
     context 'when user is sign in' do
-      context 'when user is player' do
-        it 'returns http status code 302' do
-          expect(response).to have_http_status(302)
-          expect(response).to redirect_to root_url
-        end
-      end
-
-      context 'when user is game_master' do
-        let(:user) { game_master }
-
-        it 'returns http status code 302' do
-          expect(response).to have_http_status(302)
-          expect(response).to redirect_to root_url
-        end
-      end
-
-      context 'when user is admin' do
-        let(:user) { admin }
-
-        it 'returns http status success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
-
-      context 'when user is superadmin' do
-        let(:user) { superadmin }
-
-        it 'returns http status success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
+      it_behaves_like 'user roles have different access'
     end
 
     context 'when user is not sign in' do
@@ -156,68 +101,41 @@ RSpec.describe 'Panel::Games', type: :request do
 
     context 'when user is sign in' do
       context 'when params is valid' do
-        context 'when user is player' do
-          it 'redirect to root url' do
-            expect(post_request).to redirect_to root_url
-            expect { post_request }.to change(Game, :count).by 0
-          end
-        end
+        %w[player game_master].each do |role|
+          context "when user is #{role}" do
+            let(:user) { send(role) }
 
-        context 'when user is game_master' do
-          let(:user) { game_master }
-
-          it 'redirect to root url' do
-            expect(post_request).to redirect_to root_url
-            expect { post_request }.to change(Game, :count).by 0
-          end
-        end
-
-        context 'when user is admin' do
-          let(:user) { admin }
-          it 'returns redirect to game page' do
-            expect(post_request).to redirect_to panel_game_path(Game.last)
-          end
-
-          it 'create new game' do
-            expect { post_request }.to change(Game, :count).by 1
-          end
-
-          it 'assign new game to current_user' do
-            post_request
-            expect(Game.last.user.id).to eq user.id
-          end
-
-          context 'when params has not permiter params' do
-            before { game_attributes[:id] = 23 }
-
-            it 'creates game' do
-              expect { post_request }.to change(Game, :count).by 1
-              expect(Game.last.id).to_not eq 23
+            it 'redirect to root url' do
+              expect(post_request).to redirect_to root_url
+              expect { post_request }.to change(Game, :count).by 0
             end
           end
         end
 
-        context 'when user is superadmin' do
-          let(:user) { superadmin }
-          it 'returns redirect to game page' do
-            expect(post_request).to redirect_to panel_game_path(Game.last)
-          end
+        %w[admin superadmin].each do |role|
+          context "when user is #{role}" do
+            let(:user) { send(role) }
 
-          it 'create new game' do
-            expect { post_request }.to change(Game, :count).by 1
-          end
+            it 'returns redirect to game page' do
+              expect(post_request).to redirect_to panel_game_path(Game.last)
+            end
 
-          it 'assign new game to current_user' do
-            post_request
-            expect(Game.last.user.id).to eq user.id
-          end
-
-          context 'when params has not permiter params' do
-            before { game_attributes[:id] = 23 }
-
-            it 'creates game' do
+            it 'create new game' do
               expect { post_request }.to change(Game, :count).by 1
-              expect(Game.last.id).to_not eq 23
+            end
+
+            it 'assign new game to current_user' do
+              post_request
+              expect(Game.last.user.id).to eq user.id
+            end
+
+            context 'when params has not permiter params' do
+              before { game_attributes[:id] = 23 }
+
+              it 'creates game' do
+                expect { post_request }.to change(Game, :count).by 1
+                expect(Game.last.id).to_not eq 23
+              end
             end
           end
         end
@@ -225,62 +143,34 @@ RSpec.describe 'Panel::Games', type: :request do
 
       # for now only admin and superadmin has access to this page
       context 'when params is not valid' do
-        context 'when user is admin' do
-          let(:user) { admin }
+        %w[admin superadmin].each do |role|
+          context "when user is #{role}" do
+            let(:user) { send(role) }
 
-          context 'when title is to short' do
-            before { game_attributes[:title] = 'fo' }
+            context 'when title is to short' do
+              before { game_attributes[:title] = 'fo' }
 
-            it 'renders new page' do
-              post_request
-              expect(response).to render_template('panel/games/new')
+              it 'renders new page' do
+                post_request
+                expect(response).to render_template('panel/games/new')
+              end
+
+              it "doesn't create new game" do
+                expect { post_request }.to change(Game, :count).by 0
+              end
             end
 
-            it "doesn't create new game" do
-              expect { post_request }.to change(Game, :count).by 0
-            end
-          end
+            context 'when start_date has wrong format' do
+              before { game_attributes[:start_date] = 'foo' }
 
-          context 'when start_date has wrong format' do
-            before { game_attributes[:start_date] = 'foo' }
+              it 'renders new page' do
+                post_request
+                expect(response).to render_template('panel/games/new')
+              end
 
-            it 'renders new page' do
-              post_request
-              expect(response).to render_template('panel/games/new')
-            end
-
-            it "doesn't create new game" do
-              expect { post_request }.to change(Game, :count).by 0
-            end
-          end
-        end
-
-        context 'when user is superadmin' do
-          let(:user) { superadmin }
-
-          context 'when title is to short' do
-            before { game_attributes[:title] = 'fo' }
-
-            it 'renders new page' do
-              post_request
-              expect(response).to render_template('panel/games/new')
-            end
-
-            it "doesn't create new game" do
-              expect { post_request }.to change(Game, :count).by 0
-            end
-          end
-
-          context 'when start_date has wrong format' do
-            before { game_attributes[:start_date] = 'foo' }
-
-            it 'renders new page' do
-              post_request
-              expect(response).to render_template('panel/games/new')
-            end
-
-            it "doesn't create new game" do
-              expect { post_request }.to change(Game, :count).by 0
+              it "doesn't create new game" do
+                expect { post_request }.to change(Game, :count).by 0
+              end
             end
           end
         end
@@ -305,37 +195,7 @@ RSpec.describe 'Panel::Games', type: :request do
     before { get "/panel/games/#{game.id}/edit" }
 
     context 'when user is sign in' do
-      context 'when user is player' do
-        it 'returns http status code 302' do
-          expect(response).to have_http_status(302)
-          expect(response).to redirect_to root_url
-        end
-      end
-
-      context 'when user is game_master' do
-        let(:user) { game_master }
-
-        it 'returns http status code 302' do
-          expect(response).to have_http_status(302)
-          expect(response).to redirect_to root_url
-        end
-      end
-
-      context 'when user is admin' do
-        let(:user) { admin }
-
-        it 'returns http success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
-
-      context 'when user is superadmin' do
-        let(:user) { superadmin }
-
-        it 'returns http success' do
-          expect(response).to have_http_status(:success)
-        end
-      end
+      it_behaves_like 'user roles have different access'
     end
 
     context 'when user is not sign in' do
@@ -353,57 +213,35 @@ RSpec.describe 'Panel::Games', type: :request do
 
     context 'when user is sign in' do
       context 'when params is valid' do
-        context 'when user is player' do
-          it 'redirect to root page' do
-            expect(put_request).to redirect_to root_url
-          end
+        %w[player game_master].each do |role|
+          context "when user is #{role}" do
+            let(:user) { send(role) }
 
-          it "doens't updates game params" do
-            put_request
-            expect(game.reload.title).to_not eq params[:game][:title]
-            expect(game.reload.max_level).to_not eq params[:game][:max_level]
-          end
-        end
+            it 'redirect to root page' do
+              expect(put_request).to redirect_to root_url
+            end
 
-        context 'when user is game_master' do
-          let(:user) { game_master }
-
-          it 'redirect to root page' do
-            expect(put_request).to redirect_to root_url
-          end
-
-          it "doens't updates game params" do
-            put_request
-            expect(game.reload.title).to_not eq params[:game][:title]
-            expect(game.reload.max_level).to_not eq params[:game][:max_level]
+            it "doesn't updates game params" do
+              put_request
+              expect(game.reload.title).to_not eq params[:game][:title]
+              expect(game.reload.max_level).to_not eq params[:game][:max_level]
+            end
           end
         end
 
-        context 'when user is admin' do
-          let(:user) { admin }
+        %w[admin superadmin].each do |role|
+          context "when user is #{role}" do
+            let(:user) { send(role) }
 
-          it 'returns http success' do
-            expect(put_request).to redirect_to panel_game_path(game)
-          end
+            it 'returns http success' do
+              expect(put_request).to redirect_to panel_game_path(game)
+            end
 
-          it 'updates game params' do
-            put_request
-            expect(game.reload.title).to eq params[:game][:title]
-            expect(game.reload.max_level).to eq params[:game][:max_level]
-          end
-        end
-
-        context 'when user is superadmin' do
-          let(:user) { superadmin }
-
-          it 'returns http success' do
-            expect(put_request).to redirect_to panel_game_path(game)
-          end
-
-          it 'updates game params' do
-            put_request
-            expect(game.reload.title).to eq params[:game][:title]
-            expect(game.reload.max_level).to eq params[:game][:max_level]
+            it 'updates game params' do
+              put_request
+              expect(game.reload.title).to eq params[:game][:title]
+              expect(game.reload.max_level).to eq params[:game][:max_level]
+            end
           end
         end
       end
@@ -411,61 +249,37 @@ RSpec.describe 'Panel::Games', type: :request do
       context 'when params is not valid' do
         let(:params) { { game: { title: '12', max_level: 2, id: 1, user_id: 2 } } }
 
-        context 'when user is player' do
-          it 'redirect to root page' do
-            expect(put_request).to redirect_to root_url
-            expect(game.reload.title).to_not eq params[:game][:title]
+        %w[player game_master].each do |role|
+          context "when user is #{role}" do
+            let(:user) { send(role) }
+
+            it 'redirect to root page' do
+              expect(put_request).to redirect_to root_url
+              expect(game.reload.title).to_not eq params[:game][:title]
+            end
           end
         end
 
-        context 'when user is game_master' do
-          let(:user) { game_master }
+        %w[admin superadmin].each do |role|
+          context "when user is #{role}" do
+            let(:user) { send(role) }
 
-          it 'redirect to root page' do
-            expect(put_request).to redirect_to root_url
-            expect(game.reload.title).to_not eq params[:game][:title]
-          end
-        end
+            it 'render edit template' do
+              put_request
+              expect(response).to render_template('panel/games/edit')
+            end
 
-        context 'when user is admin' do
-          let(:user) { admin }
-
-          it 'render edit template' do
-            put_request
-            expect(response).to render_template('panel/games/edit')
-          end
-
-          it "doesn't update game's params" do
-            put_request
-            expect(game.reload.title).to_not eq params[:game][:title]
-            expect(game.reload.title).to eq game.title
-            expect(game.reload.max_level).to_not eq params[:game][:max_level]
-            expect(game.reload.max_level).to eq game.max_level
-            expect(game.reload.id).to_not eq params[:game][:id]
-            expect(game.reload.id).to eq game.id
-            expect(game.reload.user_id).to_not eq params[:game][:user_id]
-            expect(game.reload.user_id).to eq game.user_id
-          end
-        end
-
-        context 'when user is superadmin' do
-          let(:user) { superadmin }
-
-          it 'render edit template' do
-            put_request
-            expect(response).to render_template('panel/games/edit')
-          end
-
-          it "doesn't update game's params" do
-            put_request
-            expect(game.reload.title).to_not eq params[:game][:title]
-            expect(game.reload.title).to eq game.title
-            expect(game.reload.max_level).to_not eq params[:game][:max_level]
-            expect(game.reload.max_level).to eq game.max_level
-            expect(game.reload.id).to_not eq params[:game][:id]
-            expect(game.reload.id).to eq game.id
-            expect(game.reload.user_id).to_not eq params[:game][:user_id]
-            expect(game.reload.user_id).to eq game.user_id
+            it "doesn't update game's params" do
+              put_request
+              expect(game.reload.title).to_not eq params[:game][:title]
+              expect(game.reload.title).to eq game.title
+              expect(game.reload.max_level).to_not eq params[:game][:max_level]
+              expect(game.reload.max_level).to eq game.max_level
+              expect(game.reload.id).to_not eq params[:game][:id]
+              expect(game.reload.id).to eq game.id
+              expect(game.reload.user_id).to_not eq params[:game][:user_id]
+              expect(game.reload.user_id).to eq game.user_id
+            end
           end
         end
       end
@@ -478,47 +292,29 @@ RSpec.describe 'Panel::Games', type: :request do
 
     context 'when user is sign in' do
       context 'when game is exist' do
-        context 'when user is player' do
-          it 'redirect to root page' do
-            expect(delete_request).to redirect_to root_url
-            expect { delete_request }.to_not change(Game, :count)
+        %w[player game_master].each do |role|
+          context "when user is #{role}" do
+            let(:user) { send(role) }
+
+            it 'redirect to root page' do
+              expect(delete_request).to redirect_to root_url
+              expect { delete_request }.to_not change(Game, :count)
+            end
           end
         end
+        %w[admin superadmin].each do |role|
+          context "when user is #{role}" do
+            let(:user) { send(role) }
 
-        context 'when user is game_master' do
-          let(:user) { game_master }
+            it 'redirects to index' do
+              delete_request
+              expect(response).to redirect_to panel_games_path
+            end
 
-          it 'redirect to root page' do
-            expect(delete_request).to redirect_to root_url
-            expect { delete_request }.to_not change(Game, :count)
-          end
-        end
-
-        context 'when user is admin' do
-          let(:user) { admin }
-
-          it 'redirects to index' do
-            delete_request
-            expect(response).to redirect_to panel_games_path
-          end
-
-          it 'deletes game' do
-            game
-            expect { delete_request }.to change(Game, :count).by -1
-          end
-        end
-
-        context 'when user is superadmin' do
-          let(:user) { superadmin }
-
-          it 'redirects to index' do
-            delete_request
-            expect(response).to redirect_to panel_games_path
-          end
-
-          it 'deletes game' do
-            game
-            expect { delete_request }.to change(Game, :count).by -1
+            it 'deletes game' do
+              game
+              expect { delete_request }.to change(Game, :count).by -1
+            end
           end
         end
       end
