@@ -11,6 +11,10 @@ FactoryBot.define do
       user_roles { [association(:user_role, :role_game_master)] }
     end
 
+    trait :with_game_master do
+      association :game_master
+    end
+
     trait :role_admin do
       user_roles { [association(:user_role, :role_admin)] }
     end
