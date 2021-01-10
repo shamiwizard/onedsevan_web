@@ -13,7 +13,7 @@ end
 
 %i[superadmin admin game_master].each do |role|
   2.times do |n|
-    user = FactoryBot.create(:user, "role-#{role}", username: "#{role}_#{n}")
+    user = FactoryBot.create(:user, "role_#{role}", username: "#{role}-#{n}")
     puts "User #{user.username} created!"
   end
 end

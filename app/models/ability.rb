@@ -5,8 +5,9 @@ class Ability
 
   def initialize(user)
     user_ability
-    admin_ability if user.admin.first
-    superadmin_ability if user.superadmin.first
+    game_master_ability if user.user_roles_game_master.first
+    admin_ability if user.user_roles_admin.first
+    superadmin_ability if user.user_roles_superadmin.first
     # Define abilities for the passed in user here. For example:
     #
     #   user ||= User.new # guest user (not logged in)
@@ -38,11 +39,15 @@ class Ability
   private
 
   def user_ability
-    can :read, Game
+    can :read, [Game, GameMaster]
+  end
+
+  def game_master_ability
+    can :update, GameMaster
   end
 
   def admin_ability
-    can :manage, Game
+    can :manage, [Game, GameMaster]
   end
 
   def superadmin_ability
