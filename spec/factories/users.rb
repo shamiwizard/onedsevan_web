@@ -8,28 +8,38 @@ FactoryBot.define do
     date_of_birth { Faker::Date.birthday(min_age: 18, max_age: 65) }
 
     trait :role_game_master do
-      user_roles { [association(:user_role, :role_game_master)] }
-    end
-
-    trait :with_game_master do
-      association :game_master
+      after(:create) { |user| create(:game_master, user: user) }
     end
 
     trait :role_admin do
-      user_roles { [association(:user_role, :role_admin)] }
+      after(:create) { |user| create(:user_role, :role_admin, user: user) }
     end
 
     trait :role_superadmin do
-      user_roles { [association(:user_role, :role_superadmin)] }
+      after(:create) { |user| create(:user_role, :role_superadmin, user: user) }
     end
 
-    trait :with_games do
+    factory :user_with_games do
       transient do
-        game_count { 1 }
+        games_count { 1 }
       end
 
-      games do
-        Array.new(game_count) { association(:game) }
+      after(:create) do |user, evaluator|
+        create_list(:game, evaluator.games_count, user: user)
+
+        user.reload
+      end
+    end
+
+    factory :user_with_character do
+      transient do
+        characters_count { 1 }
+      end
+
+      after(:create) do |user, evaluator|
+        create_list(:character, evaluator.characters_count, user: user)
+
+        user.reload
       end
     end
   end
