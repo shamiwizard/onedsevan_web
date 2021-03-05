@@ -2,6 +2,7 @@ class User < ApplicationRecord
   has_one :game_master, dependent: :destroy
   has_many :games
   has_many :user_roles, dependent: :destroy
+  has_many :characters, dependent: :destroy
 
   mount_uploader :avatar, AvatarUploader
   # Include default devise modules. Others available are:
